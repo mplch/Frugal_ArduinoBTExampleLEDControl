@@ -23,7 +23,7 @@ public class ConnectThread extends Thread {
         // Use a temporary object that is later assigned to mmSocket
         // because mmSocket is final.
         BluetoothSocket tmp = null;
-        this.handler=handler;
+        ConnectThread.handler =handler;
 
         try {
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
@@ -51,7 +51,6 @@ public class ConnectThread extends Thread {
             } catch (IOException closeException) {
                 Log.e(TAG, "Could not close the client socket", closeException);
             }
-            return;
         }
 
         // The connection attempt succeeded. Perform work associated with
