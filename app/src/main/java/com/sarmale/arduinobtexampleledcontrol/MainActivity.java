@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         // Create an Observable from RxAndroid
         // The code will be executed when an Observer subscribes to the the Observable
         final Observable<ConnectedClass> connectToBTObservable = Observable.create(emitter -> {
+            // Emitter seems to be something very crucial for Observable
+            // I don't think it's needed in current state, as the 'onNext()' method is not in use.
             Log.d(TAG, "Calling ConnectThread class");  // Probably mistake before, lowercase 'c'.
             // Call the constructor of the ConnectThread class
             // Passing the Arguments: an Object that represents the BT device,
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Calling ConnectedThread class");
                 // The pass the Open socket as arguments to call the constructor of ConnectedThread
                 // ConnectedThread connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-				connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
+                connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
 				// connectedThread.run();
 				// if(connectedThread.getValueRead()!=null)
                 if(connectedThread.getMmInStream() != null && connectedThread!= null)
@@ -125,15 +127,23 @@ public class MainActivity extends AppCompatActivity {
                     emitter.onNext(connected);
                     //MyApplication.setupConnectedThread();
                 }
-				// // We just want to stream 1 value, so we close the BT stream
-                // connectedThread.cancel();
+                // We just want to stream 1 value, so we close the BT stream
+                if (connectedThread != null) {
+                    connectedThread.cancel();
+                    // Might have produced NullPointerException.
+                }
             }
-		    // // SystemClock.sleep(5000); // simulate delay
-            // //Then we close the socket connection
-            // my_connectThread.cancel();
-            // // We could Override the onComplete function
-            emitter.onComplete();
-            my_connectThread.cancel();
+
+		     // SystemClock.sleep(5000); // Why would you need that?
+             // Close the socket connection
+             my_connectThread.cancel();
+             // We could Override the onComplete function
+
+            emitter.onComplete();  // Does it even have a purpose to call it, when NOT OVERRIDDEN?
+
+            /* SOMETIMES THE RECONNECT WORKS, SOMETIMES STILL IT DOES NOT */
+            /* Calling the 'cancel()' method on both Threads doesn't seem to solve it. */
+            /* Maybe its not enough, as it might only cancel threads but not bt comm / socket. */
         });
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

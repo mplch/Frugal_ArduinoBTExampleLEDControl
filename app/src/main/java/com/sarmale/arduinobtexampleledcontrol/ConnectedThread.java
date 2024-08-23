@@ -19,7 +19,6 @@ public class ConnectedThread extends Thread {
     private final OutputStream mmOutStream;
     private String valueRead;
 
-    /* START OF FIRST DIFFERENCE OF TWO */
     public InputStream getMmInStream() {
         return mmInStream;
     }
@@ -27,7 +26,6 @@ public class ConnectedThread extends Thread {
     public OutputStream getMmOutStream() {
         return mmOutStream;
     }
-    /* END OF FIRST DIFFERENCE OF TWO */
 
     public ConnectedThread(BluetoothSocket socket) {
         mmSocket = socket;
@@ -89,7 +87,6 @@ public class ConnectedThread extends Thread {
 
     }
 
-    /* START OF SECOND DIFFERENCE OF TWO */
     //Write to the BT Stream
     public void write(String input) {
         byte[] bytes = input.getBytes(); //converts entered String into bytes
@@ -99,7 +96,6 @@ public class ConnectedThread extends Thread {
             Log.e("Send Error","Unable to send message",e);
         }
     }
-    /* END OF SECOND DIFFERENCE OF TWO */
 
     // Call this method from the main activity to shut down the connection.
     public void cancel() {

@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">ArduinoBTExampleLEDControl</string>
+    <string name="app_name" translatable="false">ArduinoBTExampleLEDControl</string>
+    <string name="searchButtonText">Search linked BT devices</string>
+    <string name="btDevicesDefault">Please, search for linked BT devices.</string>
+    <string name="connectButtonText">Connect to the BT module</string>
+    <string name="btReadingsDefault">No BT value read yet.</string>
+    <string name="nextActivityButtonText">Set Led Color</string>
 </resources>

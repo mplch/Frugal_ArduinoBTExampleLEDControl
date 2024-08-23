@@ -10,46 +10,62 @@
         android:id="@+id/btDevices"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:text="@string/btDevicesDefault"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.24" />
+        app:layout_constraintVertical_bias="0.275" />
+
+    <TextView
+        android:id="@+id/btReadingsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btReadingsDefault"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.600" />
 
     <Button
         android:id="@+id/searchDevicesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="52dp"
-        android:text="Search linked BT devices"
+        android:text="@string/searchButtonText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05"
         tools:ignore="MissingConstraints" />
 
     <Button
         android:id="@+id/connectButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="112dp"
-        android:layout_marginTop="360dp"
         android:enabled="false"
-        android:text="Connect to HC-05"
+        android:text="@string/connectButtonText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"
         tools:ignore="MissingConstraints" />
 
     <Button
         android:id="@+id/nextActivityButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="128dp"
-        android:layout_marginTop="484dp"
-        android:text="Set Led Color"
+        android:enabled="false"
+        android:text="@string/nextActivityButtonText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:enabled="false"/>
+        app:layout_constraintVertical_bias="0.9" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
