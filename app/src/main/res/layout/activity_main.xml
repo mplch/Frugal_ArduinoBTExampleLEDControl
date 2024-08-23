@@ -19,7 +19,7 @@
         app:layout_constraintVertical_bias="0.24" />
 
     <Button
-        android:id="@+id/searchDevicesButton"
+        android:id="@+id/seachDevices"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
@@ -30,7 +30,7 @@
         tools:ignore="MissingConstraints" />
 
     <Button
-        android:id="@+id/connectButton"
+        android:id="@+id/connectToDevice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="112dp"
@@ -42,7 +42,7 @@
         tools:ignore="MissingConstraints" />
 
     <Button
-        android:id="@+id/nextActivityButton"
+        android:id="@+id/nextActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="128dp"
