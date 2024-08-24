@@ -64,10 +64,11 @@ public class MainActivity extends AppCompatActivity {
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
 		
         // Instances of the Android UI elements that will will use during the execution of the APP
-        // TextView btReadings = findViewById(R.id.btReadings);
 		TextView btDevices = findViewById(R.id.btDevices);
         Button connectButton = findViewById(R.id.connectButton);
         Button searchDevicesButton = findViewById(R.id.searchDevicesButton);
+        TextView btReadings = findViewById(R.id.btReadingsTextView);
+        Button clearValues = findViewById(R.id.clearButton);
         Button nextActivityButton = findViewById(R.id.nextActivityButton);
         Log.d(TAG, "Begin Execution");
 
@@ -86,14 +87,14 @@ public class MainActivity extends AppCompatActivity {
         };
 		
 		
-		/*  // Set a listener event on a button to clear the texts
+		// Set a listener event on a button to clear the texts
         clearValues.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 btDevices.setText("");
                 btReadings.setText("");
             }
-        });  */
+        });
 
 
         // Create an Observable from RxAndroid
