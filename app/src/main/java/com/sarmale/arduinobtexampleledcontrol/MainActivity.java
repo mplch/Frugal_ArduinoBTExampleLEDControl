@@ -88,70 +88,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-		
-		
-		// Set a listener event on a button to clear the texts
-        clearButton.setOnClickListener(view -> {
-            btDevices.setText("");
-            btReadings.setText("");
-        });
 
-
-        // Create an Observable from RxAndroid
-        // The code will be executed when an Observer subscribes to the the Observable
-        final Observable<ConnectedClass> my_connectObservable = Observable.create(emitter -> {
-            // Emitter seems to be something very crucial for Observable
-            // I don't think it's needed in current state, as the 'onNext()' method is not in use.
-            Log.d(TAG, "Calling ConnectThread class");  // Probably mistake before, lowercase 'c'.
-            // Call the constructor of the ConnectThread class
-            // Passing the Arguments: an Object that represents the BT device,
-            // the UUID and then the handler to update the UI
-            ConnectThread my_connectThread = new ConnectThread(arduinoBTModule, arduinoUUID, handler);
-            my_connectThread.run();
-            // Check if Socket connected
-            if (my_connectThread.getMmSocket().isConnected()) {
-                Log.d(TAG, "Calling ConnectedThread class");
-                // The pass the Open socket as arguments to call the constructor of ConnectedThread
-                // ConnectedThread connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-                connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-				// connectedThread.run();
-				// if(connectedThread.getValueRead()!=null)
-                if(connectedThread.getMmInStream() != null && connectedThread!= null)
-                {
-					 // If we have read a value from the Arduino
-                     // we call the onNext() function
-                     // This value will be observed by the observer
-                     emitter.onNext(connectedThread.getValueRead());
-
-                    Log.d(TAG, "Calling ConnectedClass class");
-                    ConnectedClass connected = new ConnectedClass();
-                    connected.setConnected(true);
-                    emitter.onNext(connected);
-                    // MyApplication.setupConnectedThread();
-                }
-                // We just want to stream 1 value, so we close the BT stream
-                if (connectedThread != null) {
-                    connectedThread.cancel();
-                    // Might have produced NullPointerException.
-                }
-            }
-
-		     // SystemClock.sleep(5000); // Why would you need that?
-             // Close the socket connection
-             my_connectThread.cancel();
-             // We could Override the onComplete function
-
-            emitter.onComplete();  // Does it even have a purpose to call it, when NOT OVERRIDDEN?
-
-            /* SOMETIMES THE RECONNECT WORKS, SOMETIMES STILL IT DOES NOT */
-            /* Calling the 'cancel()' method on both Threads doesn't seem to solve it. */
-            /* Maybe its not enough, as it might only cancel threads but not bt comm / socket. */
-        });
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////// Find all Linked devices ///////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// Find all Linked devices ///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Display all the linked BT Devices
         searchDevicesButton.setOnClickListener(view -> {
@@ -216,10 +156,65 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Button Pressed");
         });
 
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////// Call the observable to connect to the HC-05 ////////////////////////////////////////////
-        ////////////////////////////////////////////// If it connects, the button to configure the LED will be enabled  ///////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////// Call the observable to connect to the HC-05 ////////////////////////////////////////////
+////////////////////////////////////////////// If it connects, the button to configure the LED will be enabled  ///////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Create an Observable from RxAndroid
+        // The code will be executed when an Observer subscribes to the the Observable
+        final Observable<ConnectedClass> my_connectObservable = Observable.create(emitter -> {
+            // Emitter seems to be something very crucial for Observable
+            // I don't think it's needed in current state, as the 'onNext()' method is not in use.
+            Log.d(TAG, "Calling ConnectThread class");  // Probably mistake before, lowercase 'c'.
+            // Call the constructor of the ConnectThread class
+            // Passing the Arguments: an Object that represents the BT device,
+            // the UUID and then the handler to update the UI
+            ConnectThread my_connectThread = new ConnectThread(arduinoBTModule, arduinoUUID, handler);
+            my_connectThread.run();
+            // Check if Socket connected
+            if (my_connectThread.getMmSocket().isConnected()) {
+                Log.d(TAG, "Calling ConnectedThread class");
+                // The pass the Open socket as arguments to call the constructor of ConnectedThread
+                // ConnectedThread connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
+                connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
+                // connectedThread.run();  
+                // if(connectedThread.getValueRead()!=null)
+                if(connectedThread.getMmInStream() != null && connectedThread!= null)
+                {
+                    // If we have read a value from the Arduino
+                    // we call the onNext() function
+                    // This value will be observed by the observer
+                    emitter.onNext(connectedThread.getValueRead());
+
+                    Log.d(TAG, "Calling ConnectedClass class");
+                    ConnectedClass connected = new ConnectedClass();
+                    connected.setConnected(true);
+                    emitter.onNext(connected);
+                    // MyApplication.setupConnectedThread();
+                }
+                // We just want to stream 1 value, so we close the BT stream
+                if (connectedThread != null) {
+                    connectedThread.cancel();
+                    // Might have produced NullPointerException.
+                }
+            }
+
+            // SystemClock.sleep(5000); // Why would you need that?
+            // Close the socket connection
+            my_connectThread.cancel();
+            // We could Override the onComplete function
+
+            emitter.onComplete();  // Does it even have a purpose to call it, when NOT OVERRIDDEN?
+
+            /* SOMETIMES THE RECONNECT WORKS, SOMETIMES STILL IT DOES NOT */
+            /* Calling the 'cancel()' method on both Threads doesn't seem to solve it. */
+            /* Maybe its not enough, as it might only cancel threads but not bt comm / socket. */
+        });
+
+/////////////////////////////////////////////////////////////////////
+///////////////////////   END OF OBSERVABLE   ///////////////////////
+/////////////////////////////////////////////////////////////////////
 
         //            @SuppressLint("CheckResult")  // Added by me - mplch
         connectButton.setOnClickListener(view -> {
@@ -246,12 +241,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         // Next activity to configure the RGB LED
         configureLEDButton.setOnClickListener(view -> {
             Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
             MyApplication.getApplication().setupConnectedThread(connectedThread);
             Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
             startActivity(intent);
+        });
+
+
+        // Set a listener event on a button to clear the texts
+        clearButton.setOnClickListener(view -> {
+            btDevices.setText("");
+            btReadings.setText("");
         });
     }
 }
