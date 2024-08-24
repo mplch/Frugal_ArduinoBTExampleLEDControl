@@ -72,7 +72,7 @@ public class ConnectedThread extends Thread {
                     readMessage = new String(buffer, 0, bytes);
                     Log.e(TAG, readMessage);
                     //Value to be read by the Observer streamed by the Obervable
-                    valueRead=readMessage;
+                    valueRead = readMessage;
                     bytes = 0;
                     numberOfReadings++;
                 } else {

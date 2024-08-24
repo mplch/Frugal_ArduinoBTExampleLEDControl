@@ -180,24 +180,44 @@ public class MainActivity extends AppCompatActivity {
                 connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
                 // connectedThread.run();  // Why its not .run() here??
                 // if(connectedThread.getValueRead()!=null)
-                if(connectedThread.getMmInStream() != null && connectedThread!= null)
-                {
+
+                /* How do I use getMmInStream ??! */
+
+                // Condition 'connectedThread != null' is always true. (IDE suggestion.)
+                if(connectedThread.getMmInStream() != null) {
+                    // Checking '.getMmInStream()' instead of 'getValueRead()' is BETTER
+                    // because 'getValueRead()' CALLS '.getMmInStream()'.
+
                     // If we have read a value from the Arduino
                     // we call the onNext() function
                     // This value will be observed by the observer
-                    emitter.onNext(connectedThread.getValueRead());
+//                    emitter.onNext(connectedThread.getValueRead());
 
                     Log.d(TAG, "Calling Exchange class");
-                    Exchange my_connected = new Exchange();
-                    my_connected.setConnected(true);
-                    emitter.onNext(my_connected);
+                    Exchange my_exchange = new Exchange();
+                    my_exchange.setConnected(true);
+
+                    if (connectedThread.getValueRead() != null) {
+                        Log.d(TAG, "Setting Message");
+                        Log.d(TAG, connectedThread.getValueRead());
+                        my_exchange.setMessage(connectedThread.getValueRead());
+                    } else {
+                        Log.d(TAG, "getValueRead() returned null message, continuing..");
+                    }
+
+                    Log.d(TAG, "emitter.onNext");
+                    emitter.onNext(my_exchange);
                     // MyApplication.setupConnectedThread();
                 }
+
                 // We just want to stream 1 value, so we close the BT stream
-                if (connectedThread != null) {
+//                if (connectedThread != null) {
                     connectedThread.cancel();
+                /* Seems like it can not... */
                     // Might have produced NullPointerException.
-                }
+//                }
+                /* So HOW IS IT ??  Can a 'connectedThread' be a NULL or not? */
+
             }
 
             // SystemClock.sleep(5000); // Why would you need that?
@@ -230,10 +250,22 @@ public class MainActivity extends AppCompatActivity {
                         observeOn(AndroidSchedulers.mainThread()).
                         subscribeOn(Schedulers.io()).
                         subscribe(my_exchangeObservable_p -> {
+
                             if(my_exchangeObservable_p.isConnected()){
                                 configureLEDButton.setEnabled(true);
                             }
-                            btReadings.setText(my_exchangeObservable_p.message);
+
+//                            Log.d(TAG, "Getting Message");
+//                            btReadings.setText(my_exchangeObservable_p.getMessage());
+//                            Log.d(TAG, my_exchangeObservable_p.getMessage());
+
+                            if (my_exchangeObservable_p.getMessage() != null) {
+                                Log.d(TAG, "Got Message");
+                                Log.d(TAG, my_exchangeObservable_p.getMessage());
+                                btReadings.setText(my_exchangeObservable_p.getMessage());
+                            } else {
+                                Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
+                            }
                             
                             // valueRead returned by the onNext() from the Observable
 //                            btReadings.setText(valueRead);  // not in ExampleLEDControl
