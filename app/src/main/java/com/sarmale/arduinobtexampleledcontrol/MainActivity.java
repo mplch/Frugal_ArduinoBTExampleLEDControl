@@ -47,11 +47,13 @@ public class MainActivity extends AppCompatActivity {
     BluetoothDevice btDevice = null;
     UUID arduinoUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     // We declare a default UUID to create the global variable
-    
-	ConnectedThread my_connectedThread;
 
+    // Should these two be declared here?
+    ConnectThread my_connectThread;  // I added this soon declaration.
+	ConnectedThread my_connectedThread;  // This one already was there.
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult")  // Ignoring result of subscribe method in ConnectButton
+    // Actually it can be a potential source of reconnect problems. What should be the result for?
     @RequiresApi(api = Build.VERSION_CODES.M)  // ??
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,23 +165,20 @@ public class MainActivity extends AppCompatActivity {
 
         // Create an Observable from RxAndroid
         // The code will be executed when an Observer subscribes to the the Observable
-//        final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
         final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
+
             Log.d(TAG, "Calling ConnectThread class");
             Log.d(TAG, "Arg - btDevice: >"+btDevice+"< end.");
-            ConnectThread my_connectThread = new ConnectThread(btDevice, arduinoUUID, handler);
-            my_connectThread.run();
+            // ConnectThread my_connectThread;  // I've decided to declare it in the file header.
+            my_connectThread = new ConnectThread(btDevice, arduinoUUID, handler);
+            my_connectThread.run();  // MUST BE RUN !!
+
             // Check if Socket connected
             if (my_connectThread.getMmSocket().isConnected()) {
+
                 Log.d(TAG, "Calling ConnectedThread class");
-                 my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-//                 ConnectedThread my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-
-                 my_connectedThread.run();
-                /* Why its not .run() here?? */
-                /* YUP... AND THAT'S THE REASON, WHY WASN'T IT WORKING ALL THE TIME... */
-
-                /* How do I use getMmInStream ??! */
+                my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
+                my_connectedThread.run();  // MUST BE RUN !!
 
                 if(my_connectedThread.getMmInStream() != null) {
 
@@ -187,23 +186,23 @@ public class MainActivity extends AppCompatActivity {
                     Exchange my_exchange = new Exchange();
                     my_exchange.setConnected(true);
 
-
                     String receivedValueRead = my_connectedThread.getValueRead();
 
                     if (receivedValueRead != null) {
 
                         // If we have read a value from the Arduino
-                        // we call the onNext() function
+                        // we call the onNext() method of emitter
                         // This value will be observed by the observer
-//                    emitter.onNext(my_connectedThread.getValueRead());
 
                         Log.d(TAG, "Setting Message");
                         Log.d(TAG, receivedValueRead);
                         my_exchange.setMessage(receivedValueRead);
                         Log.d(TAG, "emitter.onNext");
                         emitter.onNext(my_exchange);
-//
+
+                        // What is the purpose of this?
                         // MyApplication.setupConnectedThread();
+
                     } else {
                         Log.d(TAG, "getValueRead() returned null message, continuing..");
                     }
@@ -211,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
                 my_connectedThread.cancel();
             }
 
-            // SystemClock.sleep(5000); // Why would you need that?
+            // SystemClock.sleep(5000); // Why would this be needed?
             // Close the socket connection
             my_connectThread.cancel();
             // We could Override the onComplete function
@@ -227,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
 ///////////////////////   END OF OBSERVABLE   ///////////////////////
 /////////////////////////////////////////////////////////////////////
 
-        //            @SuppressLint("CheckResult")  // Added by me - mplch
         connectButton.setOnClickListener(view -> {
             Log.d(TAG, "INFO: connectButton.setOnClickListener(v->{");
             btReadings.setText("");
@@ -241,21 +239,10 @@ public class MainActivity extends AppCompatActivity {
                         subscribeOn(Schedulers.io()).
                         subscribe(my_exchangeObservable_p -> {
 
-//                            if(my_exchangeObservable_p.isConnected()){
-//                                configureLEDButton.setEnabled(true);
-//                            }
+                            if(my_exchangeObservable_p.isConnected()){
+                                configureLEDButton.setEnabled(true);
+                            }
 
-//                            Log.d(TAG, "Getting Message");
-//                            btReadings.setText(observedMessage);
-//                            Log.d(TAG, observedMessage);
-
-//                            if (observedMessage != null) {
-//                                Log.d(TAG, "Got Message");
-//                                Log.d(TAG, observedMessage);
-//                                btReadings.setText(observedMessage);
-//                            } else {
-//                                Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
-//                            }
 
                             String observedMessage = my_exchangeObservable_p.getMessage();
 
