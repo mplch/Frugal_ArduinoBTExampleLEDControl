@@ -4,6 +4,6 @@
     <string name="btDevicesDefault">Please, search for linked BT devices.</string>
     <string name="connectButtonText">Connect to the BT module</string>
     <string name="btReadingsDefault">No BT value read yet.</string>
-    <string name="clearButtonText">Clear readings</string>
+    <string name="clearButtonText">Clear all</string>
     <string name="nextActivityButtonText">Set LED Color</string>
 </resources>

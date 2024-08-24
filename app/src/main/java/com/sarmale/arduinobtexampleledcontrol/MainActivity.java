@@ -5,7 +5,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import android.Manifest;
-// import android.annotation.SuppressLint;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -19,9 +18,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-// import android.os.SystemClock;
+// import android.os.SystemClock;  // For: SystemClock.sleep(5000);
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +36,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
     
 	// Global variables we will use
-    private static final String TAG = "FrugalLogs";
+    private static final String TAG = "LOG TAG";
     private static final int REQUEST_ENABLE_BT = 1;
 	
     //We will use a Handler to get the BT Connection status
@@ -53,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 	ConnectedThread connectedThread;
 	
 	
+    @SuppressLint("CheckResult")
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +63,12 @@ public class MainActivity extends AppCompatActivity {
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
 		
         // Instances of the Android UI elements that will will use during the execution of the APP
-		TextView btDevices = findViewById(R.id.btDevices);
-        Button connectButton = findViewById(R.id.connectButton);
         Button searchDevicesButton = findViewById(R.id.searchDevicesButton);
+        TextView btDevices = findViewById(R.id.btDevices);
+        Button connectButton = findViewById(R.id.connectButton);
         TextView btReadings = findViewById(R.id.btReadingsTextView);
-        Button clearValues = findViewById(R.id.clearButton);
-        Button nextActivityButton = findViewById(R.id.nextActivityButton);
+        Button clearButton = findViewById(R.id.clearButton);
+        Button configureLEDButton = findViewById(R.id.nextActivityButton);
         Log.d(TAG, "Begin Execution");
 
 
@@ -80,7 +79,9 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(@NonNull Message msg) {  // Annotated on behalf of IDE.
                 if (msg.what == ERROR_READ) {
                     String arduinoMsg = msg.obj.toString(); // Read message from Arduino
-                    // btReadings.setText(arduinoMsg);
+                    btReadings.setText(arduinoMsg);
+                    // I believe the bellow one is responsible for showing "Unable to connect to BT device."
+                    // Still not sure why it happens, nor how to fix it.
                     Toast.makeText(MainActivity.this, arduinoMsg, Toast.LENGTH_LONG).show();
                 }
             }
@@ -88,12 +89,9 @@ public class MainActivity extends AppCompatActivity {
 		
 		
 		// Set a listener event on a button to clear the texts
-        clearValues.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btDevices.setText("");
-                btReadings.setText("");
-            }
+        clearButton.setOnClickListener(view -> {
+            btDevices.setText("");
+            btReadings.setText("");
         });
 
 
@@ -122,11 +120,12 @@ public class MainActivity extends AppCompatActivity {
                     // // we call the onNext() function
                     // // This value will be observed by the observer
                     // emitter.onNext(connectedThread.getValueRead());
-					
+
+                    Log.d(TAG, "Calling ConnectedClass class");
                     ConnectedClass connected = new ConnectedClass();
                     connected.setConnected(true);
                     emitter.onNext(connected);
-                    //MyApplication.setupConnectedThread();
+                    // MyApplication.setupConnectedThread();
                 }
                 // We just want to stream 1 value, so we close the BT stream
                 if (connectedThread != null) {
@@ -151,71 +150,68 @@ public class MainActivity extends AppCompatActivity {
         ////////////////////////////////////////////////////// Find all Linked devices ///////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        searchDevicesButton.setOnClickListener(new View.OnClickListener() {
-            // IDE suggests to replace upper with LAMBDA ?
-            // Display all the linked BT Devices
-            @Override
-            public void onClick(View view) {
-                // Check if the phone supports BT.
-                if (bluetoothAdapter == null) {
-                    Log.d(TAG, "Device doesn't support Bluetooth");
+
+        // Display all the linked BT Devices
+        searchDevicesButton.setOnClickListener(view -> {
+            // Check if the phone supports BT.
+            if (bluetoothAdapter == null) {
+                Log.d(TAG, "Device doesn't support Bluetooth");
+            } else {
+                Log.d(TAG, "Device support Bluetooth");
+                // Check BT enabled.
+                if (!bluetoothAdapter.isEnabled()) {
+                    Log.d(TAG, "Bluetooth is disabled");
+                    // Ask user to enable BT. (--> Do We ??)
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    // This 'if' is here AT THIS MOMENT just to silence the COMPILER.
+                    if (ActivityCompat.checkSelfPermission(
+                            getApplicationContext(),
+                            Manifest.permission.BLUETOOTH_CONNECT)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                    } else {}
+                    /* The previous 'if' had SAME BODY as 'else' block. --> SUPERFLUOUS*/
+                    Log.d(TAG, "We \"EITHER DO OR DON'T\" have BT Permissions");
+                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                    Log.d(TAG, "Bluetooth is \"EITHER WAY\" enabled now");
                 } else {
-                    Log.d(TAG, "Device support Bluetooth");
-                    // Check BT enabled.
-                    if (!bluetoothAdapter.isEnabled()) {
-                        Log.d(TAG, "Bluetooth is disabled");
-                        // Ask user to enable BT. (--> Do We ??)
-                        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        // This 'if' is here AT THIS MOMENT just to silence the COMPILER.
-                        if (ActivityCompat.checkSelfPermission(
-                                getApplicationContext(),
-                                Manifest.permission.BLUETOOTH_CONNECT)
-                                != PackageManager.PERMISSION_GRANTED) {
-                            // TODO: Consider calling
-                            //    ActivityCompat#requestPermissions
-                            // here to request the missing permissions, and then overriding
-                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                            //                                          int[] grantResults)
-                            // to handle the case where the user grants the permission. See the documentation
-                            // for ActivityCompat#requestPermissions for more details.
-                        } else {}
-                        /* The previous 'if' had SAME BODY as 'else' block. --> SUPERFLUOUS*/
-                        Log.d(TAG, "We \"EITHER DO OR DON'T\" have BT Permissions");
-                        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                        Log.d(TAG, "Bluetooth is \"EITHER WAY\" enabled now");
-                    } else {
-                        Log.d(TAG, "Bluetooth is enabled");
-                    }
+                    Log.d(TAG, "Bluetooth is enabled");
+                }
 
-                    String btDevicesString = "";
-                    Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+                String btDevicesString = "";
+                Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
-                    if (pairedDevices.size() > 0) {
-                        // Get the name and address of each paired device.
-                        for (BluetoothDevice device: pairedDevices) {
-                            String deviceName = device.getName();
-                            String deviceHardwareAddress = device.getAddress(); // MAC address
-                            Log.d(TAG, "deviceName:" + deviceName);
-                            Log.d(TAG, "deviceHardwareAddress:" + deviceHardwareAddress);
-                            // We append all devices to a String that we will display in the UI
-                            btDevicesString = btDevicesString + deviceName +
-                                            " || " + deviceHardwareAddress + "\n";
-                            // If we find the HC 05 device (the Arduino BT module)
-                            // We assign the device value to the Global variable BluetoothDevice
-                            // We enable the button "Connect to HC 05 device"
-                            if (deviceName.equals("HC-05")) {
-                                Log.d(TAG, "HC-05 found");
-                                arduinoUUID = device.getUuids()[0].getUuid();
-                                arduinoBTModule = device;
-                                // HC -05 Found, enabling the button to read results
-                                connectButton.setEnabled(true);
-                            }
-                            btDevices.setText(btDevicesString);
+                if (pairedDevices.size() > 0) {
+                    // Get the name and address of each paired device.
+                    for (BluetoothDevice device: pairedDevices) {
+                        String deviceName = device.getName();
+                        String deviceHardwareAddress = device.getAddress(); // MAC address
+                        Log.d(TAG, "deviceName:" + deviceName);
+                        Log.d(TAG, "deviceHardwareAddress:" + deviceHardwareAddress);
+                        // We append all devices to a String that we will display in the UI
+                        btDevicesString = btDevicesString + deviceName +
+                                        " || " + deviceHardwareAddress + "\n";
+                        // If we find the HC 05 device (the Arduino BT module)
+                        // We assign the device value to the Global variable BluetoothDevice
+                        // We enable the button "Connect to HC 05 device"
+                        if (deviceName.equals("HC-05")) {
+                            Log.d(TAG, "HC-05 found");
+                            arduinoUUID = device.getUuids()[0].getUuid();
+                            arduinoBTModule = device;
+                            // HC -05 Found, enabling the button to read results
+                            connectButton.setEnabled(true);
                         }
+                        btDevices.setText(btDevicesString);
                     }
                 }
-                Log.d(TAG, "Button Pressed");
             }
+            Log.d(TAG, "Button Pressed");
         });
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,39 +219,34 @@ public class MainActivity extends AppCompatActivity {
         ////////////////////////////////////////////// If it connects, the button to configure the LED will be enabled  ///////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        connectButton.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("CheckResult")  // Added by me - mplch
-            @Override
-            public void onClick(View view) {
-				// btReadings.setText("");
-                if (arduinoBTModule != null) {
-                    // We subscribe to the observable until the onComplete() is called
-                    // We also define control the thread management with
-                    // subscribeOn:  the thread in which you want to execute the action
-                    // observeOn: the thread in which you want to get the response
-                    connectToBTObservable.
-					observeOn(AndroidSchedulers.mainThread()).
-					subscribeOn(Schedulers.io()).
-					subscribe(connectedToBTDevice -> {
-						// valueRead returned by the onNext() from the Observable
-						if(connectedToBTDevice.isConnected()){
-							nextActivityButton.setEnabled(true);
-						}
-						// btReadings.setText(valueRead);
-						// We just scratched the surface with RxAndroid
-					});
-                }
+        //            @SuppressLint("CheckResult")  // Added by me - mplch
+        connectButton.setOnClickListener(view -> {
+            // btReadings.setText("");
+            if (arduinoBTModule != null) {
+                // We subscribe to the observable until the onComplete() is called
+                // We also define control the thread management with
+                // subscribeOn:  the thread in which you want to execute the action
+                // observeOn: the thread in which you want to get the response
+                connectToBTObservable.
+                observeOn(AndroidSchedulers.mainThread()).
+                subscribeOn(Schedulers.io()).
+                subscribe(connectedToBTDevice -> {
+                    // valueRead returned by the onNext() from the Observable
+                    if(connectedToBTDevice.isConnected()){
+                        configureLEDButton.setEnabled(true);
+                    }
+                    // btReadings.setText(valueRead);
+                    // We just scratched the surface with RxAndroid
+                });
             }
         });
 
         // Next activity to configure the RGB LED
-        nextActivityButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MyApplication.getApplication().setupConnectedThread(connectedThread);
-                Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
-                startActivity(intent);
-            }
+        configureLEDButton.setOnClickListener(view -> {
+            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
+            MyApplication.getApplication().setupConnectedThread(connectedThread);
+            Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
+            startActivity(intent);
         });
     }
 }
