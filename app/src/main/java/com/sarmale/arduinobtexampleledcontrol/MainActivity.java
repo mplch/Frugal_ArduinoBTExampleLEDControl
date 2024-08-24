@@ -44,11 +44,11 @@ public class MainActivity extends AppCompatActivity {
     private final static int ERROR_READ = 0;
     // Used in bluetooth handler to identify message update
 	
-    BluetoothDevice arduinoBTModule = null;
+    BluetoothDevice btDevice = null;
     UUID arduinoUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     // We declare a default UUID to create the global variable
     
-	ConnectedThread connectedThread;
+	ConnectedThread my_connectedThread;
 	
 	
     @SuppressLint("CheckResult")
@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                         if (deviceName.equals("HC-05")) {
                             Log.d(TAG, "HC-05 found");
                             arduinoUUID = device.getUuids()[0].getUuid();
-                            arduinoBTModule = device;
+                            btDevice = device;
                             // HC -05 Found, enabling the button to read results
                             connectButton.setEnabled(true);
                         }
@@ -163,61 +163,50 @@ public class MainActivity extends AppCompatActivity {
 
         // Create an Observable from RxAndroid
         // The code will be executed when an Observer subscribes to the the Observable
-        final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
-            // Emitter seems to be something very crucial for Observable
-            // I don't think it's needed in current state, as the 'onNext()' method is not in use.
-            Log.d(TAG, "Calling ConnectThread class");  // Probably mistake before, lowercase 'c'.
-            // Call the constructor of the ConnectThread class
-            // Passing the Arguments: an Object that represents the BT device,
-            // the UUID and then the handler to update the UI
-            ConnectThread my_connectThread = new ConnectThread(arduinoBTModule, arduinoUUID, handler);
+//        final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
+        final Observable<String> my_exchangeObservable = Observable.create(emitter -> {
+            Log.d(TAG, "Calling ConnectThread class");
+            ConnectThread my_connectThread = new ConnectThread(btDevice, arduinoUUID, handler);
             my_connectThread.run();
             // Check if Socket connected
             if (my_connectThread.getMmSocket().isConnected()) {
                 Log.d(TAG, "Calling ConnectedThread class");
-                // The pass the Open socket as arguments to call the constructor of ConnectedThread
-                // ConnectedThread connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-                connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-                // connectedThread.run();  // Why its not .run() here??
-                // if(connectedThread.getValueRead()!=null)
+                 my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
+//                 ConnectedThread my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
+                 my_connectedThread.run();  // Why its not .run() here??
 
                 /* How do I use getMmInStream ??! */
 
-                // Condition 'connectedThread != null' is always true. (IDE suggestion.)
-                if(connectedThread.getMmInStream() != null) {
+                if(my_connectedThread.getMmInStream() != null) {
                     // Checking '.getMmInStream()' instead of 'getValueRead()' is BETTER
                     // because 'getValueRead()' CALLS '.getMmInStream()'.
 
                     // If we have read a value from the Arduino
                     // we call the onNext() function
                     // This value will be observed by the observer
-//                    emitter.onNext(connectedThread.getValueRead());
+//                    emitter.onNext(my_connectedThread.getValueRead());
 
-                    Log.d(TAG, "Calling Exchange class");
-                    Exchange my_exchange = new Exchange();
-                    my_exchange.setConnected(true);
+//                    Log.d(TAG, "Calling Exchange class");
+//                    Exchange my_exchange = new Exchange();
+//                    my_exchange.setConnected(true);
 
-                    if (connectedThread.getValueRead() != null) {
-                        Log.d(TAG, "Setting Message");
-                        Log.d(TAG, connectedThread.getValueRead());
-                        my_exchange.setMessage(connectedThread.getValueRead());
+                    String receivedValueRead = my_connectedThread.getValueRead();
+
+                    if (receivedValueRead != null) {
+//                        Log.d(TAG, "Setting Message");
+                        Log.d(TAG, receivedValueRead);
+//                        my_exchange.setMessage(receivedValueRead);
+                        Log.d(TAG, "emitter.onNext");
+//                    emitter.onNext(my_exchange);
+                        emitter.onNext(receivedValueRead);
+                        // MyApplication.setupConnectedThread();
                     } else {
                         Log.d(TAG, "getValueRead() returned null message, continuing..");
                     }
 
-                    Log.d(TAG, "emitter.onNext");
-                    emitter.onNext(my_exchange);
-                    // MyApplication.setupConnectedThread();
+
                 }
-
-                // We just want to stream 1 value, so we close the BT stream
-//                if (connectedThread != null) {
-                    connectedThread.cancel();
-                /* Seems like it can not... */
-                    // Might have produced NullPointerException.
-//                }
-                /* So HOW IS IT ??  Can a 'connectedThread' be a NULL or not? */
-
+                my_connectedThread.cancel();
             }
 
             // SystemClock.sleep(5000); // Why would you need that?
@@ -240,8 +229,7 @@ public class MainActivity extends AppCompatActivity {
         connectButton.setOnClickListener(view -> {
             Log.d(TAG, "INFO: connectButton.setOnClickListener(v->{");
             btReadings.setText("");
-            Log.d(TAG, "INFO: connectButton: btReadings set to \"\".");
-            if (arduinoBTModule != null) {
+            if (btDevice != null) {
                 // We subscribe to the observable until the onComplete() is called
                 // We also define control the thread management with
                 // subscribeOn:  the thread in which you want to execute the action
@@ -251,18 +239,26 @@ public class MainActivity extends AppCompatActivity {
                         subscribeOn(Schedulers.io()).
                         subscribe(my_exchangeObservable_p -> {
 
-                            if(my_exchangeObservable_p.isConnected()){
-                                configureLEDButton.setEnabled(true);
-                            }
+//                            if(my_exchangeObservable_p.isConnected()){
+//                                configureLEDButton.setEnabled(true);
+//                            }
 
 //                            Log.d(TAG, "Getting Message");
 //                            btReadings.setText(my_exchangeObservable_p.getMessage());
 //                            Log.d(TAG, my_exchangeObservable_p.getMessage());
 
-                            if (my_exchangeObservable_p.getMessage() != null) {
+//                            if (my_exchangeObservable_p.getMessage() != null) {
+//                                Log.d(TAG, "Got Message");
+//                                Log.d(TAG, my_exchangeObservable_p.getMessage());
+//                                btReadings.setText(my_exchangeObservable_p.getMessage());
+//                            } else {
+//                                Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
+//                            }
+
+                            if (my_exchangeObservable_p != null) {
                                 Log.d(TAG, "Got Message");
-                                Log.d(TAG, my_exchangeObservable_p.getMessage());
-                                btReadings.setText(my_exchangeObservable_p.getMessage());
+                                Log.d(TAG, my_exchangeObservable_p);
+                                btReadings.setText(my_exchangeObservable_p);
                             } else {
                                 Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
                             }
@@ -278,8 +274,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Next activity to configure the RGB LED
         configureLEDButton.setOnClickListener(view -> {
-            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
-            MyApplication.getApplication().setupConnectedThread(connectedThread);
+            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(my_connectedThread)");
+            MyApplication.getApplication().setupConnectedThread(my_connectedThread);
             Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
             startActivity(intent);
         });

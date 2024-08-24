@@ -43,6 +43,11 @@ public class ConnectThread extends Thread {
             // until it succeeds or throws an exception.
             mmSocket.connect();
         } catch (IOException connectException) {
+
+            /* THIS IS WHERE THE BAD THINGS HAPPEN */
+            // Maybe the fact that i read the values more times can cause trouble
+            // even though i dont think they should - ill check the video demo later
+
             // Unable to connect; close the socket and return.
             handler.obtainMessage(ERROR_READ, "Unable to connect to the BT device").sendToTarget();
             Log.e(TAG, "connectException: " + connectException);
