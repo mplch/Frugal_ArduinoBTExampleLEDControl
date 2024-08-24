@@ -13,7 +13,7 @@ import java.io.OutputStream;
 //Open, manage and close the data Stream from the Arduino BT device
 public class ConnectedThread extends Thread {
 
-    private static final String TAG = "FrugalLogs";
+    private static final String TAG = "FrugalLogs Connected";
     private final BluetoothSocket mmSocket;
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
@@ -70,7 +70,7 @@ public class ConnectedThread extends Thread {
                 // If I detect a "\n" means I already read a full measurement
                 if (buffer[bytes] == '\n') {
                     readMessage = new String(buffer, 0, bytes);
-                    Log.e(TAG, readMessage);
+                    Log.e(TAG+"run", readMessage);
                     //Value to be read by the Observer streamed by the Obervable
                     valueRead = readMessage;
                     bytes = 0;

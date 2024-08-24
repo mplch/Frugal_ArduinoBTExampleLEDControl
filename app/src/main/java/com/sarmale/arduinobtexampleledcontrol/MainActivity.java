@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
     // We declare a default UUID to create the global variable
     
 	ConnectedThread my_connectedThread;
-	
-	
+
+
     @SuppressLint("CheckResult")
     @RequiresApi(api = Build.VERSION_CODES.M)  // ??
     @Override
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 		// // Instances of BT Manager and BT Adapter needed to work with BT in Android.
         BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-		
+
         // Instances of the Android UI elements that will will use during the execution of the APP
         Button searchDevicesButton = findViewById(R.id.searchDevicesButton);
         TextView btDevices = findViewById(R.id.btDevices);
@@ -164,8 +164,9 @@ public class MainActivity extends AppCompatActivity {
         // Create an Observable from RxAndroid
         // The code will be executed when an Observer subscribes to the the Observable
 //        final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
-        final Observable<String> my_exchangeObservable = Observable.create(emitter -> {
+        final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
             Log.d(TAG, "Calling ConnectThread class");
+            Log.d(TAG, "Arg - btDevice: >"+btDevice+"< end.");
             ConnectThread my_connectThread = new ConnectThread(btDevice, arduinoUUID, handler);
             my_connectThread.run();
             // Check if Socket connected
@@ -173,38 +174,39 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Calling ConnectedThread class");
                  my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
 //                 ConnectedThread my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-                 my_connectedThread.run();  // Why its not .run() here??
+
+                 my_connectedThread.run();
+                /* Why its not .run() here?? */
+                /* YUP... AND THAT'S THE REASON, WHY WASN'T IT WORKING ALL THE TIME... */
 
                 /* How do I use getMmInStream ??! */
 
                 if(my_connectedThread.getMmInStream() != null) {
-                    // Checking '.getMmInStream()' instead of 'getValueRead()' is BETTER
-                    // because 'getValueRead()' CALLS '.getMmInStream()'.
 
-                    // If we have read a value from the Arduino
-                    // we call the onNext() function
-                    // This value will be observed by the observer
-//                    emitter.onNext(my_connectedThread.getValueRead());
+                    Log.d(TAG, "Calling Exchange class");
+                    Exchange my_exchange = new Exchange();
+                    my_exchange.setConnected(true);
 
-//                    Log.d(TAG, "Calling Exchange class");
-//                    Exchange my_exchange = new Exchange();
-//                    my_exchange.setConnected(true);
 
                     String receivedValueRead = my_connectedThread.getValueRead();
 
                     if (receivedValueRead != null) {
-//                        Log.d(TAG, "Setting Message");
+
+                        // If we have read a value from the Arduino
+                        // we call the onNext() function
+                        // This value will be observed by the observer
+//                    emitter.onNext(my_connectedThread.getValueRead());
+
+                        Log.d(TAG, "Setting Message");
                         Log.d(TAG, receivedValueRead);
-//                        my_exchange.setMessage(receivedValueRead);
+                        my_exchange.setMessage(receivedValueRead);
                         Log.d(TAG, "emitter.onNext");
-//                    emitter.onNext(my_exchange);
-                        emitter.onNext(receivedValueRead);
+                        emitter.onNext(my_exchange);
+//
                         // MyApplication.setupConnectedThread();
                     } else {
                         Log.d(TAG, "getValueRead() returned null message, continuing..");
                     }
-
-
                 }
                 my_connectedThread.cancel();
             }
@@ -244,25 +246,27 @@ public class MainActivity extends AppCompatActivity {
 //                            }
 
 //                            Log.d(TAG, "Getting Message");
-//                            btReadings.setText(my_exchangeObservable_p.getMessage());
-//                            Log.d(TAG, my_exchangeObservable_p.getMessage());
+//                            btReadings.setText(observedMessage);
+//                            Log.d(TAG, observedMessage);
 
-//                            if (my_exchangeObservable_p.getMessage() != null) {
+//                            if (observedMessage != null) {
 //                                Log.d(TAG, "Got Message");
-//                                Log.d(TAG, my_exchangeObservable_p.getMessage());
-//                                btReadings.setText(my_exchangeObservable_p.getMessage());
+//                                Log.d(TAG, observedMessage);
+//                                btReadings.setText(observedMessage);
 //                            } else {
 //                                Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
 //                            }
 
-                            if (my_exchangeObservable_p != null) {
+                            String observedMessage = my_exchangeObservable_p.getMessage();
+
+                            if (observedMessage != null) {
                                 Log.d(TAG, "Got Message");
-                                Log.d(TAG, my_exchangeObservable_p);
-                                btReadings.setText(my_exchangeObservable_p);
+                                Log.d(TAG, observedMessage);
+                                btReadings.setText(observedMessage);
                             } else {
                                 Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
                             }
-                            
+
                             // valueRead returned by the onNext() from the Observable
 //                            btReadings.setText(valueRead);  // not in ExampleLEDControl
                             // We just scratched the surface with RxAndroid

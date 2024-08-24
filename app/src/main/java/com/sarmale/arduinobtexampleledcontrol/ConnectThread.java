@@ -14,7 +14,7 @@ import java.util.UUID;
 //Given a BT device, the UUID and a Handler to set the results
 public class ConnectThread extends Thread {
     private final BluetoothSocket mmSocket;
-    private static final String TAG = "FrugalLogs";
+    private static final String TAG = "FrugalLogs Connect";
     public static Handler handler;
     private final static int ERROR_READ = 0;
 
