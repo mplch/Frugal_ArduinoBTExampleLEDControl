@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 	
 	
     @SuppressLint("CheckResult")
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.M)  // ??
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +77,9 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(@NonNull Message msg) {  // Annotated on behalf of IDE.
+                Log.d(TAG, "INFO: handler: handleMessage: msg");
                 if (msg.what == ERROR_READ) {
+                    Log.d(TAG, "ERROR: handler: msg.what == ERROR_READ");
                     String arduinoMsg = msg.obj.toString(); // Read message from Arduino
                     btReadings.setText(arduinoMsg);
                     // I believe the bellow one is responsible for showing "Unable to connect to BT device."
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Create an Observable from RxAndroid
         // The code will be executed when an Observer subscribes to the the Observable
-        final Observable<ConnectedClass> connectToBTObservable = Observable.create(emitter -> {
+        final Observable<ConnectedClass> my_connectObservable = Observable.create(emitter -> {
             // Emitter seems to be something very crucial for Observable
             // I don't think it's needed in current state, as the 'onNext()' method is not in use.
             Log.d(TAG, "Calling ConnectThread class");  // Probably mistake before, lowercase 'c'.
@@ -116,10 +118,10 @@ public class MainActivity extends AppCompatActivity {
 				// if(connectedThread.getValueRead()!=null)
                 if(connectedThread.getMmInStream() != null && connectedThread!= null)
                 {
-					// // If we have read a value from the Arduino
-                    // // we call the onNext() function
-                    // // This value will be observed by the observer
-                    // emitter.onNext(connectedThread.getValueRead());
+					 // If we have read a value from the Arduino
+                     // we call the onNext() function
+                     // This value will be observed by the observer
+                     emitter.onNext(connectedThread.getValueRead());
 
                     Log.d(TAG, "Calling ConnectedClass class");
                     ConnectedClass connected = new ConnectedClass();
@@ -221,23 +223,26 @@ public class MainActivity extends AppCompatActivity {
 
         //            @SuppressLint("CheckResult")  // Added by me - mplch
         connectButton.setOnClickListener(view -> {
-            // btReadings.setText("");
+            Log.d(TAG, "INFO: connectButton.setOnClickListener(v->{");
+            btReadings.setText("");
+            Log.d(TAG, "INFO: connectButton: btReadings set to \"\".");
             if (arduinoBTModule != null) {
                 // We subscribe to the observable until the onComplete() is called
                 // We also define control the thread management with
                 // subscribeOn:  the thread in which you want to execute the action
                 // observeOn: the thread in which you want to get the response
-                connectToBTObservable.
-                observeOn(AndroidSchedulers.mainThread()).
-                subscribeOn(Schedulers.io()).
-                subscribe(connectedToBTDevice -> {
-                    // valueRead returned by the onNext() from the Observable
-                    if(connectedToBTDevice.isConnected()){
-                        configureLEDButton.setEnabled(true);
-                    }
-                    // btReadings.setText(valueRead);
-                    // We just scratched the surface with RxAndroid
-                });
+                my_connectObservable.
+                        observeOn(AndroidSchedulers.mainThread()).
+                        subscribeOn(Schedulers.io()).
+                        subscribe(connectedToBTDevice -> {
+                            if(connectedToBTDevice.isConnected()){
+                                configureLEDButton.setEnabled(true);
+                            }
+                            // valueRead returned by the onNext() from the Observable
+                            btReadings.setText(valueRead);  // not in ExampleLEDControl
+                            // We just scratched the surface with RxAndroid
+                        });
+
             }
         });
 
