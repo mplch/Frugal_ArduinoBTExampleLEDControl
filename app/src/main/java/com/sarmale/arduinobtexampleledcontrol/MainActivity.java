@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Create an Observable from RxAndroid
         // The code will be executed when an Observer subscribes to the the Observable
-        final Observable<ConnectedClass> my_connectObservable = Observable.create(emitter -> {
+        final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
             // Emitter seems to be something very crucial for Observable
             // I don't think it's needed in current state, as the 'onNext()' method is not in use.
             Log.d(TAG, "Calling ConnectThread class");  // Probably mistake before, lowercase 'c'.
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 // The pass the Open socket as arguments to call the constructor of ConnectedThread
                 // ConnectedThread connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
                 connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-                // connectedThread.run();  
+                // connectedThread.run();  // Why its not .run() here??
                 // if(connectedThread.getValueRead()!=null)
                 if(connectedThread.getMmInStream() != null && connectedThread!= null)
                 {
@@ -187,10 +187,10 @@ public class MainActivity extends AppCompatActivity {
                     // This value will be observed by the observer
                     emitter.onNext(connectedThread.getValueRead());
 
-                    Log.d(TAG, "Calling ConnectedClass class");
-                    ConnectedClass connected = new ConnectedClass();
-                    connected.setConnected(true);
-                    emitter.onNext(connected);
+                    Log.d(TAG, "Calling Exchange class");
+                    Exchange my_connected = new Exchange();
+                    my_connected.setConnected(true);
+                    emitter.onNext(my_connected);
                     // MyApplication.setupConnectedThread();
                 }
                 // We just want to stream 1 value, so we close the BT stream
@@ -226,15 +226,17 @@ public class MainActivity extends AppCompatActivity {
                 // We also define control the thread management with
                 // subscribeOn:  the thread in which you want to execute the action
                 // observeOn: the thread in which you want to get the response
-                my_connectObservable.
+                my_exchangeObservable.
                         observeOn(AndroidSchedulers.mainThread()).
                         subscribeOn(Schedulers.io()).
-                        subscribe(connectedToBTDevice -> {
-                            if(connectedToBTDevice.isConnected()){
+                        subscribe(my_exchangeObservable_p -> {
+                            if(my_exchangeObservable_p.isConnected()){
                                 configureLEDButton.setEnabled(true);
                             }
+                            btReadings.setText(my_exchangeObservable_p.message);
+                            
                             // valueRead returned by the onNext() from the Observable
-                            btReadings.setText(valueRead);  // not in ExampleLEDControl
+//                            btReadings.setText(valueRead);  // not in ExampleLEDControl
                             // We just scratched the surface with RxAndroid
                         });
 

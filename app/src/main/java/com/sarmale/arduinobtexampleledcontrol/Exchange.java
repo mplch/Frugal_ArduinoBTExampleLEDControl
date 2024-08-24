@@ -1,6 +1,9 @@
 package com.sarmale.arduinobtexampleledcontrol;
 
-public class ConnectedClass {
+/* DEFINITELY SHOULD RANAME THIS CLASS */
+/* Communication, Comm, Exchange, Buffer, idk.. */
+
+public class Exchange {
 
     boolean isConnected;
     String message;
