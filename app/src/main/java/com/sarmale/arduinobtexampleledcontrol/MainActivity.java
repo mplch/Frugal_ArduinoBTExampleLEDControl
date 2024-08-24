@@ -48,9 +48,12 @@ public class MainActivity extends AppCompatActivity {
     UUID arduinoUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     // We declare a default UUID to create the global variable
 
+    BluetoothManager bluetoothManager;
+    BluetoothAdapter bluetoothAdapter;
+
     // Should these two be declared here?
-    ConnectThread my_connectThread;  // I added this soon declaration.
-	ConnectedThread my_connectedThread;  // This one already was there.
+    ConnectThread connectThread;  // I added this soon declaration.
+	ConnectedThread connectedThread;  // This one already was there.
 
     @SuppressLint("CheckResult")  // Ignoring result of subscribe method in ConnectButton
     // Actually it can be a potential source of reconnect problems. What should be the result for?
@@ -61,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 		// // Instances of BT Manager and BT Adapter needed to work with BT in Android.
-        BluetoothManager bluetoothManager = getSystemService(BluetoothManager.class);
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        bluetoothManager = getSystemService(BluetoothManager.class);
+        bluetoothAdapter = bluetoothManager.getAdapter();
 
         // Instances of the Android UI elements that will will use during the execution of the APP
         Button searchDevicesButton = findViewById(R.id.searchDevicesButton);
@@ -165,28 +169,28 @@ public class MainActivity extends AppCompatActivity {
 
         // Create an Observable from RxAndroid
         // The code will be executed when an Observer subscribes to the the Observable
-        final Observable<Exchange> my_exchangeObservable = Observable.create(emitter -> {
+        final Observable<Exchange> exchangeObservable = Observable.create(emitter -> {
 
             Log.d(TAG, "Calling ConnectThread class");
             Log.d(TAG, "Arg - btDevice: >"+btDevice+"< end.");
-            // ConnectThread my_connectThread;  // I've decided to declare it in the file header.
-            my_connectThread = new ConnectThread(btDevice, arduinoUUID, handler);
-            my_connectThread.run();  // MUST BE RUN !!
+            // ConnectThread connectThread;  // I've decided to declare it in the file header.
+            connectThread = new ConnectThread(btDevice, arduinoUUID, handler);
+            connectThread.run();  // MUST BE RUN !!
 
             // Check if Socket connected
-            if (my_connectThread.getMmSocket().isConnected()) {
+            if (connectThread.getMmSocket().isConnected()) {
 
                 Log.d(TAG, "Calling ConnectedThread class");
-                my_connectedThread = new ConnectedThread(my_connectThread.getMmSocket());
-                my_connectedThread.run();  // MUST BE RUN !!
+                connectedThread = new ConnectedThread(connectThread.getMmSocket());
+                connectedThread.run();  // MUST BE RUN !!
 
-                if(my_connectedThread.getMmInStream() != null) {
+                if(connectedThread.getMmInStream() != null) {
 
                     Log.d(TAG, "Calling Exchange class");
-                    Exchange my_exchange = new Exchange();
-                    my_exchange.setConnected(true);
+                    Exchange exchange = new Exchange();
+                    exchange.setConnected(true);
 
-                    String receivedValueRead = my_connectedThread.getValueRead();
+                    String receivedValueRead = connectedThread.getValueRead();
 
                     if (receivedValueRead != null) {
 
@@ -196,9 +200,9 @@ public class MainActivity extends AppCompatActivity {
 
                         Log.d(TAG, "Setting Message");
                         Log.d(TAG, receivedValueRead);
-                        my_exchange.setMessage(receivedValueRead);
+                        exchange.setMessage(receivedValueRead);
                         Log.d(TAG, "emitter.onNext");
-                        emitter.onNext(my_exchange);
+                        emitter.onNext(exchange);
 
                         // What is the purpose of this?
                         // MyApplication.setupConnectedThread();
@@ -207,12 +211,12 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "getValueRead() returned null message, continuing..");
                     }
                 }
-                my_connectedThread.cancel();
+                connectedThread.cancel();
             }
 
             // SystemClock.sleep(5000); // Why would this be needed?
             // Close the socket connection
-            my_connectThread.cancel();
+            connectThread.cancel();
             // We could Override the onComplete function
 
             emitter.onComplete();  // Does it even have a purpose to call it, when NOT OVERRIDDEN?
@@ -234,17 +238,17 @@ public class MainActivity extends AppCompatActivity {
                 // We also define control the thread management with
                 // subscribeOn:  the thread in which you want to execute the action
                 // observeOn: the thread in which you want to get the response
-                my_exchangeObservable.
+                exchangeObservable.
                         observeOn(AndroidSchedulers.mainThread()).
                         subscribeOn(Schedulers.io()).
-                        subscribe(my_exchangeObservable_p -> {
+                        subscribe(exchangeObservable_p -> {
 
-                            if(my_exchangeObservable_p.isConnected()){
+                            if(exchangeObservable_p.isConnected()){
                                 configureLEDButton.setEnabled(true);
                             }
 
 
-                            String observedMessage = my_exchangeObservable_p.getMessage();
+                            String observedMessage = exchangeObservable_p.getMessage();
 
                             if (observedMessage != null) {
                                 Log.d(TAG, "Got Message");
@@ -265,8 +269,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Next activity to configure the RGB LED
         configureLEDButton.setOnClickListener(view -> {
-            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(my_connectedThread)");
-            MyApplication.getApplication().setupConnectedThread(my_connectedThread);
+            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
+            MyApplication.getApplication().setupConnectedThread(connectedThread);
             Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
             startActivity(intent);
         });
