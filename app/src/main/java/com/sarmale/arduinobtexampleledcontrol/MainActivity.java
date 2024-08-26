@@ -246,10 +246,10 @@ public class MainActivity extends AppCompatActivity {
                         subscribeOn(Schedulers.io()).
                         subscribe(exchangeObservable_p -> {
 
-//                            if(exchangeObservable_p.isConnected()){
-////                                configureLEDButton.setEnabled(true);
-//                                sendCommandButton.setEnabled(false);
-//                            }
+                            if(exchangeObservable_p.isConnected()){
+//                                configureLEDButton.setEnabled(true);
+                                sendCommandButton.setEnabled(true);
+                            }
 
 
                             String observedMessage = exchangeObservable_p.getMessage();
@@ -282,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
         sendCommandButton.setOnClickListener(view -> {
             Log.d(TAG, "INFO: SendStringButton pressed.");
             String givenCommand = command.getText().toString();
+            Log.d(TAG, givenCommand);
+            Toast.makeText(MainActivity.this, givenCommand, Toast.LENGTH_LONG).show();
             connectedThread.write(givenCommand);
         });
 
