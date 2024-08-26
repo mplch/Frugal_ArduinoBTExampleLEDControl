@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         EditText command = findViewById(R.id.commandEditText);
         Button sendCommandButton = findViewById(R.id.sendCommandButton);
         Button clearButton = findViewById(R.id.clearButton);
-//        Button configureLEDButton = findViewById(R.id.setLEDcolorButton);
+        Button configureLEDButton = findViewById(R.id.setLEDcolorButton);
         Log.d(TAG, "Begin Execution");
 
 
@@ -217,6 +217,9 @@ public class MainActivity extends AppCompatActivity {
                 connectedThread.cancel();
             }
 
+            /* I think one of those cancels disables me to read more data */
+
+
             // SystemClock.sleep(5000); // Why would this be needed?
             // Close the socket connection
             connectThread.cancel();
@@ -247,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
                         subscribe(exchangeObservable_p -> {
 
                             if(exchangeObservable_p.isConnected()){
-//                                configureLEDButton.setEnabled(true);
+                                configureLEDButton.setEnabled(true);
                                 sendCommandButton.setEnabled(true);
                             }
 
@@ -271,13 +274,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // Next activity to configure the RGB LED
-//        configureLEDButton.setOnClickListener(view -> {
-//            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
-//            MyApplication.getApplication().setupConnectedThread(connectedThread);
-//            Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
-//            startActivity(intent);
-//        });
+//         Next activity to configure the RGB LED
+        configureLEDButton.setOnClickListener(view -> {
+            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
+            MyApplication.getApplication().setupConnectedThread(connectedThread);
+            Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
+            startActivity(intent);
+        });
 
         sendCommandButton.setOnClickListener(view -> {
             Log.d(TAG, "INFO: SendStringButton pressed.");
