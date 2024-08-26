@@ -5,5 +5,7 @@
     <string name="connectButtonText">Connect to the BT module</string>
     <string name="btReadingsDefault">No BT value read yet.</string>
     <string name="clearButtonText">Clear all</string>
-    <string name="nextActivityButtonText">Set LED Color</string>
+    <string name="setLEDcolorButtonText">Set LED Color</string>
+    <string name="sendCommandButtonText">Send string</string>
+    <string name="commandEditTextText">Please, enter a command HERE.</string>
 </resources>

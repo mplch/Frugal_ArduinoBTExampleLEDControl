@@ -21,6 +21,7 @@ import android.os.Message;
 // import android.os.SystemClock;  // For: SystemClock.sleep(5000);
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import io.reactivex.Observable;
@@ -73,8 +74,10 @@ public class MainActivity extends AppCompatActivity {
         TextView btDevices = findViewById(R.id.btDevices);
         Button connectButton = findViewById(R.id.connectButton);
         TextView btReadings = findViewById(R.id.btReadingsTextView);
+        EditText command = findViewById(R.id.commandEditText);
+        Button sendCommandButton = findViewById(R.id.sendCommandButton);
         Button clearButton = findViewById(R.id.clearButton);
-        Button configureLEDButton = findViewById(R.id.nextActivityButton);
+//        Button configureLEDButton = findViewById(R.id.setLEDcolorButton);
         Log.d(TAG, "Begin Execution");
 
 
@@ -243,9 +246,10 @@ public class MainActivity extends AppCompatActivity {
                         subscribeOn(Schedulers.io()).
                         subscribe(exchangeObservable_p -> {
 
-                            if(exchangeObservable_p.isConnected()){
-                                configureLEDButton.setEnabled(true);
-                            }
+//                            if(exchangeObservable_p.isConnected()){
+////                                configureLEDButton.setEnabled(true);
+//                                sendCommandButton.setEnabled(false);
+//                            }
 
 
                             String observedMessage = exchangeObservable_p.getMessage();
@@ -268,11 +272,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Next activity to configure the RGB LED
-        configureLEDButton.setOnClickListener(view -> {
-            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
-            MyApplication.getApplication().setupConnectedThread(connectedThread);
-            Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
-            startActivity(intent);
+//        configureLEDButton.setOnClickListener(view -> {
+//            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
+//            MyApplication.getApplication().setupConnectedThread(connectedThread);
+//            Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
+//            startActivity(intent);
+//        });
+
+        sendCommandButton.setOnClickListener(view -> {
+            Log.d(TAG, "INFO: SendStringButton pressed.");
+            String givenCommand = command.getText().toString();
+            connectedThread.write(givenCommand);
         });
 
 
