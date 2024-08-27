@@ -1,4 +1,4 @@
-package com.sarmale.arduinobtexampleledcontrol;
+package com.sarmale.frugalarduinobtexampleledcontrol;
 
 /* DEFINITELY SHOULD RANAME THIS CLASS */
 /* Communication, Comm, Exchange, Buffer, idk.. */

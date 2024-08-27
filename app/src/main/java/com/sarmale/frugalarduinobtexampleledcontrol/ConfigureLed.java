@@ -1,4 +1,4 @@
-package com.sarmale.arduinobtexampleledcontrol;
+package com.sarmale.frugalarduinobtexampleledcontrol;
 
 import androidx.appcompat.app.AppCompatActivity;
 

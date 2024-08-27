@@ -1,4 +1,4 @@
-package com.sarmale.arduinobtexampleledcontrol;
+package com.sarmale.frugalarduinobtexampleledcontrol;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;

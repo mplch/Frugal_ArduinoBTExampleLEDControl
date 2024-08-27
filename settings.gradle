@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "ArduinoBTExampleLEDControl"
+rootProject.name = "Frugal_ArduinoBTExampleLEDControl"
 include ':app'
