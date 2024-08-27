@@ -1,11 +1,13 @@
 <resources>
     <string name="app_name" translatable="false">Frugal_ArduinoBTExampleLEDControl</string>
-    <string name="searchButtonText">Search linked BT devices</string>
-    <string name="btDevicesDefault">Please, search for linked BT devices.</string>
-    <string name="connectButtonText">Connect to the BT module</string>
-    <string name="btReadingsDefault">No BT value read yet.</string>
-    <string name="clearButtonText">Clear all</string>
-    <string name="setLEDcolorButtonText">Set LED Color</string>
-    <string name="sendCommandButtonText">Send string</string>
-    <string name="commandEditTextText">Please, enter a command HERE.</string>
+    <string name="searchButtonString">Search linked BT devices</string>
+    <string name="btDevicesDefaultString">Please, search for linked BT devices.</string>
+    <string name="connectButtonString">Connect to the BT module</string>
+    <string name="btReadingsDefaultString">No BT value read yet.</string>
+    <string name="clearButtonString">Clear all</string>
+    <string name="setLEDcolorButtonString">Set LED Color</string>
+    <string name="sendCommandButtonString">Send string</string>
+    <string name="commandEditTextString">Please, enter a command HERE.</string>
+    <string name="lastCommandLabelString">Last sent command:</string>
+    <string name="lastCommandDataDefaultString">#NULL - INIT#</string>
 </resources>

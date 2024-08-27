@@ -74,10 +74,11 @@ public class MainActivity extends AppCompatActivity {
         TextView btDevices = findViewById(R.id.btDevices);
         Button connectButton = findViewById(R.id.connectButton);
         TextView btReadings = findViewById(R.id.btReadingsTextView);
-        EditText command = findViewById(R.id.commandEditText);
+        EditText commandEdit = findViewById(R.id.commandEditText);
+        TextView lastCommandLabel = findViewById(R.id.lastCommandLabelTextView);
+        TextView lastCommandData = findViewById(R.id.lastCommandDataTextView);
         Button sendCommandButton = findViewById(R.id.sendCommandButton);
         Button clearButton = findViewById(R.id.clearButton);
-        Button configureLEDButton = findViewById(R.id.setLEDcolorButton);
         Log.d(TAG, "Begin Execution");
 
 
@@ -252,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                         subscribe(exchangeObservable_p -> {
 
                             if(exchangeObservable_p.isConnected()){
-                                configureLEDButton.setEnabled(true);
+//                                configureLEDButton.setEnabled(true);
                                 sendCommandButton.setEnabled(true);
                             }
 
@@ -277,19 +278,32 @@ public class MainActivity extends AppCompatActivity {
 
 
 //         Next activity to configure the RGB LED
-        configureLEDButton.setOnClickListener(view -> {
-            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
-            MyApplication.getApplication().setupConnectedThread(connectedThread);
-            Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
-            startActivity(intent);
-        });
+//        configureLEDButton.setOnClickListener(view -> {
+//            Log.d(TAG, "INFO: MyApplication.getApplication().setupConnectedThread(connectedThread)");
+//            MyApplication.getApplication().setupConnectedThread(connectedThread);
+//            Intent intent = new Intent(MainActivity.this, ConfigureLed.class);
+//            startActivity(intent);
+//        });
 
         sendCommandButton.setOnClickListener(view -> {
             Log.d(TAG, "INFO: SendStringButton pressed.");
-            String givenCommand = command.getText().toString();
+            String givenCommand = commandEdit.getText().toString();
             Log.d(TAG, givenCommand);
-            Toast.makeText(MainActivity.this, givenCommand, Toast.LENGTH_LONG).show();
-            connectedThread.write(givenCommand);
+//            Toast.makeText(MainActivity.this, givenCommand, Toast.LENGTH_LONG).show();
+            lastCommandData.setText(givenCommand);
+            
+            if (connectedThread != null) {
+                Log.d(TAG, "INFO: Sending Command Given.");
+                connectedThread.write(givenCommand);
+                Log.d(TAG, "INFO: Given Command Sent. (Not acknowledged by the target device.)");
+                String toastMessage = "Given Command >"+givenCommand+"< Sent";
+                Toast.makeText(MainActivity.this, toastMessage, Toast.LENGTH_LONG).show();
+            } else {
+                String errorMessage = "Unable to send command - BT not connected!";
+                Log.d(TAG, "INFO:"+" "+errorMessage);
+                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+            
         });
 
 
