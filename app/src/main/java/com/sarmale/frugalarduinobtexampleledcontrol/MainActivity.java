@@ -214,7 +214,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "getValueRead() returned null message, continuing..");
                     }
                 }
-                connectedThread.cancel();
+//                connectedThread.cancel();
+                /* Should be in some onExit method. */
             }
 
             /* I think one of those cancels disables me to read more data */
@@ -222,8 +223,9 @@ public class MainActivity extends AppCompatActivity {
 
             // SystemClock.sleep(5000); // Why would this be needed?
             // Close the socket connection
-            connectThread.cancel();
-            // We could Override the onComplete function
+//            connectThread.cancel();
+            // We could Override the    onComplete function
+            /* Should be in some onExit method. */
 
             emitter.onComplete();  // Does it even have a purpose to call it, when NOT OVERRIDDEN?
 
