@@ -1,4 +1,4 @@
-package com.sarmale.frugalarduinobtexampleledcontrol;
+package com.sarmale.frugalarduinobtexampleledcontrol
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -186,10 +186,8 @@ public class MainActivity extends AppCompatActivity {
             // Check if Socket connected
             if (connectThread.getMmSocket().isConnected()) {
 
-                /* THIS ONE CAUSES TROUBLE */
-//                connectButton.setEnabled(false);
-//                btConnected.setText(getString(R.string.connectedTextViewStringTrue));
-                /* THIS ONE CAUSES TROUBLE */
+                connectButton.setEnabled(false);
+                btConnected.setText(getString(R.string.connectedTextViewStringTrue));
 
                 Log.d(TAG, "Calling ConnectedThread class");
                 connectedThread = new ConnectedThread(connectThread.getMmSocket());
@@ -221,14 +219,10 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Log.d(TAG, "getValueRead() returned null message, continuing..");
                     }
-                }
-                /* THIS ONE ALSO CAUSES TROUBLE */ /*
-                else {
+                } else {
                     connectButton.setEnabled(true);
                     btConnected.setText(getString(R.string.connectedTextViewDefaultString));
-                } */
-                /* THIS ONE ALSO CAUSES TROUBLE */
-
+                }
 //                connectedThread.cancel();
                 /* Should be in some onExit method. */
             }
@@ -277,9 +271,17 @@ public class MainActivity extends AppCompatActivity {
                             if (observedMessage != null) {
                                 Log.d(TAG, "Got Message");
                                 Log.d(TAG, observedMessage);
-                                btReadings.setText(observedMessage);
-//                                String messageLog = btReadings.getText().toString();
-
+//                                btReadings.setText(observedMessage);
+                                String messageLog = btReadings.getText().toString();
+                                String newMessage = "";
+                                int maxChars = 200;
+                                if (messageLog.length() >= maxChars) {
+                                    messageLog = "";
+                                    String errorMessage = "messageLog exceeded "+maxChars+" characters. CLEAR.";
+                                    Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                }
+                                newMessage = messageLog + "\n" + observedMessage;
+                                btReadings.setText(newMessage);
                             } else {
                                 Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
                             }

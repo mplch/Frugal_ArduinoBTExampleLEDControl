@@ -10,4 +10,7 @@
     <string name="commandEditTextString">Please, enter a command HERE.</string>
     <string name="lastCommandLabelString">Last sent command:</string>
     <string name="lastCommandDataDefaultString">#NULL - INIT#</string>
+    <string name="connectedTextViewStringTrue">BT Device Already Connected.</string>
+    <string name="connectedTextViewDefaultString">BT Device Not Connected</string>
+    <string name="lastCommandDataClearedString"># DATA CLEARED #</string>
 </resources>
