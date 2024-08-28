@@ -269,17 +269,32 @@ public class MainActivity extends AppCompatActivity {
                             if(exchangeObservable_p.isConnected()){
 //                                configureLEDButton.setEnabled(true);
                                 sendCommandButton.setEnabled(true);
+                                btConnected.setText(getString(R.string.connectedTextViewStringTrue));
+                                connectButton.setEnabled(false);
+                            } else {
+                                sendCommandButton.setEnabled(false);
+                                btConnected.setText(getString(R.string.connectedTextViewDefaultString));
+                                connectButton.setEnabled(true);
                             }
 
 
                             String observedMessage = exchangeObservable_p.getMessage();
+//                            exchangeObservable_p.setMessage("");
 
                             if (observedMessage != null) {
                                 Log.d(TAG, "Got Message");
                                 Log.d(TAG, observedMessage);
-                                btReadings.setText(observedMessage);
-//                                String messageLog = btReadings.getText().toString();
-
+//                                btReadings.setText(observedMessage);
+                                String messageLog = btReadings.getText().toString();
+                                String newMessage = "";
+                                int maxChars = 200;
+                                if (messageLog.length() >= maxChars) {
+                                    messageLog = "";
+                                    String errorMessage = "messageLog exceeded "+maxChars+" characters. CLEAR.";
+                                    Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                }
+                                newMessage = messageLog + "\n" + observedMessage;
+                                btReadings.setText(newMessage);
                             } else {
                                 Log.d(TAG, "exchange.getMessage() returned null message, continuing..");
                             }
